@@ -57,6 +57,14 @@ do
 
   mv tmpfile ${MAJOR_VERSION}/Dockerfile
 
+  # control.rb
+  sed 's#%%MYSQL_CLUSTER_PACKAGE_VERSION%%#'"${MYSQL_CLUSTER_VERSIONS[${MAJOR_VERSION}]}"'#g' template/control.rb > tmpFile
+  sed -i 's#%%MYSQL_SHELL_PACKAGE_VERSION%%#'"${MYSQL_SHELL_VERSIONS[${MAJOR_VERSION}]}"'#g' tmpFile
+  if [ ! -d "${MAJOR_VERSION}/inspec" ]; then
+    mkdir "${MAJOR_VERSION}/inspec"
+  fi
+  mv tmpFile "${MAJOR_VERSION}/inspec/control.rb"
+
   # Entrypoint
   sed 's#%%PASSWORDSET%%#'"${PASSWORDSET[${MAJOR_VERSION}]}"'#g' template/docker-entrypoint.sh > tmpfile
   sed -i 's#%%SERVER_VERSION_FULL%%#'"${SERVER_VERSION_FULL[${MAJOR_VERSION}]}"'#g' tmpfile
