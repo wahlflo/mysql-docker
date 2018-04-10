@@ -17,12 +17,12 @@ FROM oraclelinux:7-slim
 ARG KEY=https://repo.mysql.com/RPM-GPG-KEY-mysql
 ARG REPO=https://repo.mysql.com
 
-ARG MYSQL_CLIENT_PACKAGE_URL=$REPO/yum/mysql-8.0-community/docker/x86_64/mysql-community-server-minimal-8.0.4-0.1.rc.el7.x86_64.rpm
+ARG MYSQL_SERVER_PACKAGE_URL=$REPO/yum/mysql-8.0-community/docker/x86_64/mysql-community-server-minimal-8.0.4-0.1.rc.el7.x86_64.rpm
 ARG MYSQL_ROUTER_PACKAGE_URL=$REPO/yum/mysql-tools-preview/el/7/x86_64/mysql-router-8.0.4-0.1.rc.el7.x86_64.rpm
 
 RUN rpmkeys --import $KEY \
     && yum install -y \
-      $MYSQL_CLIENT_PACKAGE_URL \
+      $MYSQL_SERVER_PACKAGE_URL \
       $MYSQL_ROUTER_PACKAGE_URL \
     && yum clean all
 
