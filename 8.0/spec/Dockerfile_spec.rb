@@ -35,6 +35,6 @@ describe "Dockerfile" do
   
   it 'installs required packages' do
     expect(package('mysql-community-server-minimal')).to be_installed
-    expect(package('mysql-router')).to be_installed.with_version('8.0.4')
+    expect(package('mysql-router')).to be_installed.with_version('8.0.11')
   end
 end
