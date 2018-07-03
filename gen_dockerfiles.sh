@@ -29,19 +29,22 @@ source VERSION
 for MAJOR_VERSION in "${!MYSQL_ROUTER_VERSIONS[@]}"
 do
     # update repo information
-    sed -i -e "s#ARG REPO.*#$REPO_ARG#" $MAJOR_VERSION/Dockerfile
+    sed -e "s#ARG REPO.*#$REPO_ARG#" template/Dockerfile > $MAJOR_VERSION/Dockerfile
     # update test template
-    sed -i -e "s/with_version.*/with_version('${MYSQL_ROUTER_VERSIONS[${MAJOR_VERSION}]}')/" $MAJOR_VERSION/spec/Dockerfile_spec.rb
+    sed -e 's#%%MYSQL_SERVER_PACKAGE_VERSION%%#'"${MYSQL_SERVER_VERSIONS[${MAJOR_VERSION}]}"'#g' template/control.rb > tmpFile
+    sed -i -e 's#%%MYSQL_ROUTER_PACKAGE_VERSION%%#'"${MYSQL_ROUTER_VERSIONS[${MAJOR_VERSION}]}"'#g' tmpFile
+    if [ ! -d "${MAJOR_VERSION}/inspec" ]; then
+      mkdir "${MAJOR_VERSION}/inspec"
+    fi
+    mv tmpFile "${MAJOR_VERSION}/inspec/control.rb"
 
-    ROUTER_REPOPATH=yum/mysql-tools-community/el/7/x86_64
-    MYSQL_ROUTER_PACKAGE_URL=$ROUTER_REPOPATH/$(get_full_filename $REPO/$ROUTER_REPOPATH mysql-router-${MYSQL_ROUTER_VERSIONS[${MAJOR_VERSION}]})
-
-    MYSQL_ROUTER_PACKAGE_URL_ARG='ARG MYSQL_ROUTER_PACKAGE_URL=$REPO/'$MYSQL_ROUTER_PACKAGE_URL
-    sed -i -e "s#ARG MYSQL_ROUTER_PACKAGE_URL.*#$MYSQL_ROUTER_PACKAGE_URL_ARG#" $MAJOR_VERSION/Dockerfile
-
-    SERVER_REPOPATH=yum/mysql-$MAJOR_VERSION-community/docker/x86_64
-    MYSQL_SERVER_PACKAGE_URL=$SERVER_REPOPATH/$(get_full_filename $REPO/$SERVER_REPOPATH mysql-community-server-minimal-${MYSQL_ROUTER_VERSIONS[${MAJOR_VERSION}]})
-
-    MYSQL_SERVER_PACKAGE_URL_ARG='ARG MYSQL_SERVER_PACKAGE_URL=$REPO/'$MYSQL_SERVER_PACKAGE_URL
-    sed -i -e "s#ARG MYSQL_SERVER_PACKAGE_URL.*#$MYSQL_SERVER_PACKAGE_URL_ARG#" $MAJOR_VERSION/Dockerfile
+    MYSQL_ROUTER_REPOPATH=yum/mysql-tools-community/el/7/x86_64
+    MYSQL_ROUTER_PACKAGE_URL=\$REPO/$MYSQL_ROUTER_REPOPATH/$(get_full_filename $REPO/$MYSQL_ROUTER_REPOPATH mysql-router-${MYSQL_ROUTER_VERSIONS[${MAJOR_VERSION}]})
+    MYSQL_ROUTER_PACKAGE_URL_ARG='ARG MYSQL_ROUTER_PACKAGE_URL='$MYSQL_ROUTER_PACKAGE_URL
+    MYSQL_SERVER_REPOPATH=yum/mysql-8.0-community/docker/x86_64
+    MYSQL_SERVER_PACKAGE_URL=\$REPO/$MYSQL_SERVER_REPOPATH/$(get_full_filename $REPO/$MYSQL_SERVER_REPOPATH mysql-community-server-minimal-${MYSQL_SERVER_VERSIONS[${MAJOR_VERSION}]})
+    MYSQL_SERVER_PACKAGE_URL_ARG='ARG MYSQL_SERVER_PACKAGE_URL='$MYSQL_SERVER_PACKAGE_URL
+    sed -e "s#ARG MYSQL_SERVER_PACKAGE_URL.*#$MYSQL_SERVER_PACKAGE_URL_ARG#" template/Dockerfile > tmpFile
+    sed -i -e "s#ARG MYSQL_ROUTER_PACKAGE_URL.*#$MYSQL_ROUTER_PACKAGE_URL_ARG#" tmpFile
+    mv tmpFile $MAJOR_VERSION/Dockerfile
 done
