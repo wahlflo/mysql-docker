@@ -16,5 +16,5 @@
 set -e
 source VERSION
 for MAJOR_VERSION in "${!MYSQL_ROUTER_VERSIONS[@]}"; do
-  docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --build-arg no_proxy=$no_proxy -t mysql-router:$MAJOR_VERSION $MAJOR_VERSION
+  docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --build-arg no_proxy=$no_proxy -t mysql/mysql-router:$MAJOR_VERSION $MAJOR_VERSION
 done
