@@ -38,6 +38,10 @@ if [ "$1" = 'mysqlrouter' ]; then
 	    fi
     done
     echo "Succesfully contacted mysql server at $MYSQL_HOST. Checking for cluster state."
+    if ! [[ "$(mysql -u "$MYSQL_USER" -p -h "$MYSQL_HOST" -P "$MYSQL_PORT" -e "show status;" < /tmp/mysqlrouter-pass 2> /dev/null)" ]]; then
+	    echo "Can not connect to database. Exiting."
+	    exit 1
+    fi
     if [[ -n $MYSQL_INNODB_CLUSTER_MEMBERS ]]; then
       attempt_num=0
       until [ "$(mysql -u "$MYSQL_USER" -p -h "$MYSQL_HOST" -P "$MYSQL_PORT" -N performance_schema -e "select count(MEMBER_STATE) = $MYSQL_INNODB_NUM_MEMBERS from replication_group_members where MEMBER_STATE = 'ONLINE';" < /tmp/mysqlrouter-pass 2> /dev/null)" -eq 1 ]; do
