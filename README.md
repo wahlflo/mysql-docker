@@ -19,24 +19,24 @@ Images are updated when new MySQL Server maintenance releases and development mi
 
 The image currently uses the following variables:
 
-| Variable                 | Description                                 |
-| ------------------------ | ------------------------------------------- |
-| MYSQL_HOST               | MySQL host to connect to                    |
-| MYSQL_PORT               | Port to use                                 |
-| MYSQL_USER               | User to connect with                        |
-| MYSQL_PASSWORD           | Password to connect with                    |
-| MYSQL_INNODB_NUM_MEMBERS | The number of cluster instances to wait for |
+| Variable                     | Description                                 |
+| ---------------------------- | ------------------------------------------- |
+| MYSQL_HOST                   | MySQL host to connect to                    |
+| MYSQL_PORT                   | Port to use                                 |
+| MYSQL_USER                   | User to connect with                        |
+| MYSQL_PASSWORD               | Password to connect with                    |
+| MYSQL_INNODB_CLUSTER_MEMBERS | The number of cluster instances to wait for |
 
 Running in a container requires a working InnoDB cluster. The run script waits
 for the given mysql host to be up, the InnoDB cluster to have
-MYSQL_INNODB_NUM_MEMBERS members and then uses the given server for its
+MYSQL_INNODB_CLUSTER_MEMBERS members and then uses the given server for its
 bootstrap mode
 [Bootstrapping](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-deploying-bootstrapping.html).
 
 The image can be run via:
 
 ```
-docker run -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -e MYSQL_INNODB_NUM_MEMBERS=3 -ti mysql-router
+docker run -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -e MYSQL_INNODB_CLUSTER_MEMBERS=3 -ti mysql-router
 ```
 
 It can be verified by typing:

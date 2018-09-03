@@ -16,13 +16,13 @@
 set -e
 
 if [ "$1" = 'mysqlrouter' ]; then
-    if [[ -z $MYSQL_HOST || -z $MYSQL_PORT || -z $MYSQL_USER || -z $MYSQL_PASSWORD || -z $MYSQL_INNODB_NUM_MEMBERS ]]; then
+    if [[ -z $MYSQL_HOST || -z $MYSQL_PORT || -z $MYSQL_USER || -z $MYSQL_PASSWORD || -z $MYSQL_INNODB_CLUSTER_MEMBERS ]]; then
 	    echo "We require all of"
 	    echo "    MYSQL_HOST"
 	    echo "    MYSQL_PORT"
 	    echo "    MYSQL_USER"
 	    echo "    MYSQL_PASSWORD"
-	    echo "    MYSQL_INNODB_NUM_MEMBERS"
+	    echo "    MYSQL_INNODB_CLUSTER_MEMBERS"
 	    echo "to be set. Exiting."
 	    exit 1
     fi
@@ -38,14 +38,14 @@ if [ "$1" = 'mysqlrouter' ]; then
     done
     echo "Succesfully contacted mysql server at $MYSQL_HOST. Checking for cluster state."
     attempt_num=0
-    until [ "$(mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -h "$MYSQL_HOST" -P "$MYSQL_PORT" -N performance_schema -e "select count(MEMBER_STATE) = $MYSQL_INNODB_NUM_MEMBERS from replication_group_members where MEMBER_STATE = 'ONLINE';" 2> /dev/null)" -eq 1 ]; do
-	    echo "Waiting for $MYSQL_INNODB_NUM_MEMBERS cluster instances to become available via $MYSQL_HOST ($attempt_num/$max_tries)"
+    until [ "$(mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -h "$MYSQL_HOST" -P "$MYSQL_PORT" -N performance_schema -e "select count(MEMBER_STATE) = $MYSQL_INNODB_CLUSTER_MEMBERS from replication_group_members where MEMBER_STATE = 'ONLINE';" 2> /dev/null)" -eq 1 ]; do
+	    echo "Waiting for $MYSQL_INNODB_CLUSTER_MEMBERS cluster instances to become available via $MYSQL_HOST ($attempt_num/$max_tries)"
 	    sleep $(( attempt_num++ ))
 	    if (( attempt_num == max_tries )); then
 		    exit 1
 	    fi
     done
-    echo "Succesfully contacted cluster with $MYSQL_INNODB_NUM_MEMBERS members. Bootstrapping."
+    echo "Succesfully contacted cluster with $MYSQL_INNODB_CLUSTER_MEMBERS members. Bootstrapping."
     mysqlrouter --bootstrap "$MYSQL_USER@$MYSQL_HOST:$MYSQL_PORT" --user=mysqlrouter --directory /tmp/mysqlrouter <<< "$MYSQL_PASSWORD"
     sed -i -e 's/logging_folder=.*$/logging_folder=/' /tmp/mysqlrouter/mysqlrouter.conf
     echo "Starting mysql-router."
