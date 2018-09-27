@@ -11,7 +11,7 @@ developers to extend MySQL Router for custom use cases.
 
 # Supported Tags and Respective Dockerfile Links
 
-* MySQL Router 8.0, Release Candidate (tag: [`latest`, `8.0`, `8.0.4-rc`](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile)) ([mysql-router/8.0/Dockerfile](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile))
+* MySQL Router 8.0 (tag: [`latest`, `8.0`, `8.0.12`](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile)) ([mysql-router/8.0/Dockerfile](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile))
 
 Images are updated when new MySQL Server maintenance releases and development milestones are published. Please note that non-GA releases are for preview purposes only and should not be used in production setups.
 
@@ -25,18 +25,19 @@ The image currently uses the following variables:
 | MYSQL_PORT                   | Port to use                                 |
 | MYSQL_USER                   | User to connect with                        |
 | MYSQL_PASSWORD               | Password to connect with                    |
-| MYSQL_INNODB_CLUSTER_MEMBERS | The number of cluster instances to wait for |
 
-Running in a container requires a working InnoDB cluster. The run script waits
-for the given mysql host to be up, the InnoDB cluster to have
-MYSQL_INNODB_CLUSTER_MEMBERS members and then uses the given server for its
-bootstrap mode
+Running in a container requires a working InnoDB cluster. The container runs
+tries to bootstrap from the given MYSQL_HOST in bootstrap mode
 [Bootstrapping](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-deploying-bootstrapping.html).
+
+Note this means the router container will fail if it can't bootstrap via the
+given host. We recommend to use a "restart: on-failure" setting to be more
+lenient here.
 
 The image can be run via:
 
 ```
-docker run -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -e MYSQL_INNODB_CLUSTER_MEMBERS=3 -ti mysql-router
+docker run --restart on-failure -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -ti mysql/mysql-router:8.0
 ```
 
 It can be verified by typing:
