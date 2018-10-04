@@ -14,7 +14,7 @@ control 'packages' do
     it { should be_installed }
     its ('version') { should match '%%MYSQL_SERVER_PACKAGE_VERSION%%.*' }
   end
-  describe package('mysql-router') do
+  describe package('mysql-router-community') do
     it { should be_installed }
     its ('version') { should match '%%MYSQL_ROUTER_PACKAGE_VERSION%%.*' }
   end

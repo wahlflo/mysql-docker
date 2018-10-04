@@ -18,7 +18,7 @@
 # files in template/ with version-specific variants.
 
 set -e
-source VERSION
+source ./VERSION
 
 for MAJOR_VERSION in "${!MYSQL_ROUTER_VERSIONS[@]}"
 do

@@ -14,17 +14,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 FROM oraclelinux:7-slim
 
-ARG KEY=https://repo.mysql.com/RPM-GPG-KEY-mysql
-ARG REPO=https://repo.mysql.com
+ARG MYSQL_SERVER_PACKAGE=%%MYSQL_SERVER_PACKAGE%%
+ARG MYSQL_ROUTER_PACKAGE=%%MYSQL_ROUTER_PACKAGE%%
 
-ARG MYSQL_SERVER_PACKAGE_URL=$REPO/yum/mysql-8.0-community/docker/x86_64//mysql-community-server-minimal-8.0.11-1.el7.x86_64.rpm
-ARG MYSQL_ROUTER_PACKAGE_URL=$REPO/yum/mysql-tools-community/el/7/x86_64//mysql-router-8.0.11-1.el7.x86_64.rpm
-
-RUN rpmkeys --import $KEY \
-    && yum install -y \
-      $MYSQL_SERVER_PACKAGE_URL \
-      $MYSQL_ROUTER_PACKAGE_URL \
-    && yum clean all
+RUN yum install -y %%REPO%%/mysql-community-minimal-release-el7.rpm \
+      %%REPO%%/mysql-community-release-el7.rpm \
+  && yum-config-manager --enable mysql%%REPO_VERSION%%-server-minimal \
+  && yum-config-manager --enable mysql-tools-community \
+  && yum install -y \
+      $MYSQL_SERVER_PACKAGE \
+      $MYSQL_ROUTER_PACKAGE \
+      libpwquality \
+  && yum clean all
 
 COPY run.sh /run.sh
 HEALTHCHECK \

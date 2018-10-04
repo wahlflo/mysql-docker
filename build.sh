@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 set -e
-source VERSION
+source ./VERSION
 for MAJOR_VERSION in "${!MYSQL_ROUTER_VERSIONS[@]}"; do
   docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --build-arg no_proxy=$no_proxy -t mysql/mysql-router:$MAJOR_VERSION $MAJOR_VERSION
 done
