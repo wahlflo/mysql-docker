@@ -15,12 +15,18 @@
 
 FROM oraclelinux:7-slim
 
-ARG MYSQL_CLUSTER_PACKAGE_URL=%%MYSQL_CLUSTER_PACKAGE_URL%%
-ARG MYSQL_SHELL_PACKAGE_URL=%%MYSQL_SHELL_PACKAGE_URL%%
+ARG MYSQL_CLUSTER_PACKAGE=%%MYSQL_CLUSTER_PACKAGE%%
+ARG MYSQL_SHELL_PACKAGE=%%MYSQL_SHELL_PACKAGE%%
 
 # Install server
-RUN rpmkeys --import https://repo.mysql.com/RPM-GPG-KEY-mysql \
-  && yum install -y $MYSQL_CLUSTER_PACKAGE_URL $MYSQL_SHELL_PACKAGE_URL libpwquality \
+RUN yum install -y \
+    %%REPO%%/mysql-cluster-community-minimal-release-el7.rpm \
+    %%REPO%%/mysql-community-release-el7.rpm \
+  && yum-config-manager --enable mysql-cluster%%REPO_VERSION%%-minimal \
+  && yum install -y \
+    $MYSQL_CLUSTER_PACKAGE \
+    $MYSQL_SHELL_PACKAGE \
+    libpwquality \
   && yum clean all \
   && mkdir /docker-entrypoint-initdb.d
 

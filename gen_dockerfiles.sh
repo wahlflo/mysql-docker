@@ -19,21 +19,7 @@
 
 set -e
 
-function get_full_filename() {
-        FILEPATH=$1
-        PACKAGE_STRING=$2
-        FILENAME=$(curl -s $FILEPATH/ | grep $PACKAGE_STRING | sed -e 's/.*href=\"//i' -e 's/\".*//')
-        if [ -z "$FILENAME" ]; then
-            echo &< "Unable to locate package for $PACKAGE_STRING. Aborting"
-            exit 1
-        fi
-	COUNT=$(echo $FILENAME | tr " " "\n" | wc -l)
-        if [ $COUNT -gt 1 ]; then
-            echo &<2 "Found multiple file names for package $PACKAGE_STRING. Aborting"
-            exit 1
-        fi
-	echo $FILENAME
-}
+source VERSION
 
 if [ -z "$1" ]; then
   REPO=https://repo.mysql.com
@@ -41,21 +27,15 @@ else
   REPO=$1
 fi
 
-source VERSION
-
 for MAJOR_VERSION in "${!MYSQL_CLUSTER_VERSIONS[@]}"
 do
   # Dockerfile
-  MYSQL_CLUSTER_REPOPATH=yum/mysql-cluster-$MAJOR_VERSION-community/docker/x86_64
-  MYSQL_CLUSTER_PACKAGE_URL=$REPO/$MYSQL_CLUSTER_REPOPATH/$(get_full_filename $REPO/$MYSQL_CLUSTER_REPOPATH mysql-cluster-community-server-minimal-${MYSQL_CLUSTER_VERSIONS[${MAJOR_VERSION}]})
-  sed 's#%%PACKAGE_URL%%#'"$MYSQL_CLUSTER_PACKAGE_URL"'#g' template/Dockerfile > tmpfile
-
-  MYSQL_SHELL_REPOPATH=yum/mysql-tools-community/el/7/x86_64
-  MYSQL_SHELL_PACKAGE_URL=$REPO/$MYSQL_SHELL_REPOPATH/$(get_full_filename $REPO/$MYSQL_SHELL_REPOPATH mysql-shell-${MYSQL_SHELL_VERSIONS[${MAJOR_VERSION}]})
-  sed 's#%%MYSQL_CLUSTER_PACKAGE_URL%%#'"$MYSQL_CLUSTER_PACKAGE_URL"'#g' template/Dockerfile > tmpfile
-  sed -i 's#%%MYSQL_SHELL_PACKAGE_URL%%#'"$MYSQL_SHELL_PACKAGE_URL"'#g' tmpfile
-
-  mv tmpfile ${MAJOR_VERSION}/Dockerfile
+  sed 's#%%MYSQL_CLUSTER_PACKAGE%%#'"mysql-cluster-community-server-minimal-${MYSQL_CLUSTER_VERSIONS[${MAJOR_VERSION}]}"'#g' template/Dockerfile > tmpFile
+  sed -i 's#%%MYSQL_SHELL_PACKAGE%%#'"mysql-shell-${MYSQL_SHELL_VERSIONS[${MAJOR_VERSION}]}"'#g' tmpFile
+  sed -i 's#%%REPO%%#'"${REPO}"'#g' tmpFile
+  REPO_VERSION=${MAJOR_VERSION//\./}
+  sed -i 's#%%REPO_VERSION%%#'"${REPO_VERSION}"'#g' tmpFile
+  mv tmpFile ${MAJOR_VERSION}/Dockerfile
 
   # control.rb
   sed 's#%%MYSQL_CLUSTER_PACKAGE_VERSION%%#'"${MYSQL_CLUSTER_VERSIONS[${MAJOR_VERSION}]}"'#g' template/control.rb > tmpFile
@@ -66,9 +46,9 @@ do
   mv tmpFile "${MAJOR_VERSION}/inspec/control.rb"
 
   # Entrypoint
-  sed 's#%%PASSWORDSET%%#'"${PASSWORDSET[${MAJOR_VERSION}]}"'#g' template/docker-entrypoint.sh > tmpfile
-  sed -i 's#%%SERVER_VERSION_FULL%%#'"${SERVER_VERSION_FULL[${MAJOR_VERSION}]}"'#g' tmpfile
-  mv tmpfile ${MAJOR_VERSION}/docker-entrypoint.sh
+  sed 's#%%PASSWORDSET%%#'"${PASSWORDSET[${MAJOR_VERSION}]}"'#g' template/docker-entrypoint.sh > tmpFile
+  sed -i 's#%%SERVER_VERSION_FULL%%#'"${SERVER_VERSION_FULL[${MAJOR_VERSION}]}"'#g' tmpFile
+  mv tmpFile ${MAJOR_VERSION}/docker-entrypoint.sh
   chmod +x ${MAJOR_VERSION}/docker-entrypoint.sh
 
   # Healthcheck
