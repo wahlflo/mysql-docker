@@ -3,11 +3,7 @@ set -e
 
 source ./VERSION
 
-if [ -z "$1" ]; then
-  REPO=https://repo.mysql.com
-else
-  REPO=$1
-fi
+REPO=https://repo.mysql.com; [ -n "$1" ] && REPO=$1
 
 for MAJOR_VERSION in "${!MYSQL_ROUTER_VERSIONS[@]}"; do
     sed 's#%%MYSQL_SERVER_PACKAGE%%#'"mysql-community-server-minimal-${MYSQL_SERVER_VERSIONS[${MAJOR_VERSION}]}"'#g' template/Dockerfile > tmpFile
