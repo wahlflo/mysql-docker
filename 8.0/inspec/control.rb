@@ -12,10 +12,10 @@ control 'packages' do
   impact 0.5
   describe package('mysql-community-server-minimal') do
     it { should be_installed }
-    its ('version') { should match '8.0.12.*' }
+    its ('version') { should match '8.0.13.*' }
   end
-  describe package('mysql-router') do
+  describe package('mysql-router-community') do
     it { should be_installed }
-    its ('version') { should match '8.0.12.*' }
+    its ('version') { should match '8.0.13.*' }
   end
 end
