@@ -11,33 +11,38 @@ developers to extend MySQL Router for custom use cases.
 
 # Supported Tags and Respective Dockerfile Links
 
-* MySQL Router 8.0 (tag: [`latest`, `8.0`, `8.0.12`](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile)) ([mysql-router/8.0/Dockerfile](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile))
+* MySQL Router 8.0 (tag: [`latest`, `8.0`](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile)) ([mysql-router/8.0/Dockerfile](https://github.com/mysql/mysql-docker/blob/mysql-router/8.0/Dockerfile))
 
 Images are updated when new MySQL Server maintenance releases and development milestones are published. Please note that non-GA releases are for preview purposes only and should not be used in production setups.
 
 # How to Use the MySQL Router Images
 
-The image currently uses the following variables:
+The image currently uses the following mandatory variables:
 
-| Variable                     | Description                                 |
-| ---------------------------- | ------------------------------------------- |
-| MYSQL_HOST                   | MySQL host to connect to                    |
-| MYSQL_PORT                   | Port to use                                 |
-| MYSQL_USER                   | User to connect with                        |
-| MYSQL_PASSWORD               | Password to connect with                    |
+| Variable                 | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| MYSQL_HOST               | MySQL host to connect to                    |
+| MYSQL_PORT               | Port to use                                 |
+| MYSQL_USER               | User to connect with                        |
+| MYSQL_PASSWORD           | Password to connect with                    |
 
-Running in a container requires a working InnoDB cluster. The container runs
-tries to bootstrap from the given MYSQL_HOST in bootstrap mode
+Running in a container requires a working InnoDB cluster.
+
+The image uses the following optional variables:
+
+| Variable                 | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| MYSQL_INNODB_CLUSTER_MEMBERS | The number of cluster instances to wait for |
+
+If supplied the run script waits for the given mysql host to be up, the InnoDB cluster to have
+MYSQL_INNODB_CLUSTER_MEMBERS members and then uses the given server for its
+bootstrap mode
 [Bootstrapping](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-deploying-bootstrapping.html).
-
-Note this means the router container will fail if it can't bootstrap via the
-given host. We recommend to use a "restart: on-failure" setting to be more
-lenient here.
 
 The image can be run via:
 
 ```
-docker run --restart on-failure -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -ti mysql/mysql-router:8.0
+docker run -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_USER=mysql -e MYSQL_PASSWORD=mysql -e MYSQL_INNODB_CLUSTER_MEMBERS=3 -ti mysql/mysql-router
 ```
 
 It can be verified by typing:
@@ -49,6 +54,5 @@ docker ps
 The following output should be displayed:
 
 ```
-4954b1c80be1        mysql-router:8.0                         "/run.sh mysqlrouter"    About a minute ago   Up About a minute (healthy)   6447/tcp, 64460/tcp, 0.0.0.0:6446->6446/tcp, 64470/tcp                   innodbcluster_mysql-router_1
+4954b1c80be1 mysql-router:8.0 "/run.sh mysqlrouter" About a minute ago Up About a minute (healthy) 6447/tcp, 64460/tcp, 0.0.0.0:6446->6446/tcp, 64470/tcp innodbcluster_mysql-router_1
 ```
-
