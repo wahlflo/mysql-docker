@@ -59,7 +59,7 @@ EOF
                      exit 1
              fi
       done
-      echo "Succesfully contacted cluster with $MYSQL_INNODB_CLUSTER_MEMBERS members. Bootstrapping."
+      echo "Successfully contacted cluster with $MYSQL_INNODB_CLUSTER_MEMBERS members. Bootstrapping."
     fi
     echo "Succesfully contacted mysql server at $MYSQL_HOST. Trying to bootstrap."
     mysqlrouter --bootstrap "$MYSQL_USER@$MYSQL_HOST:$MYSQL_PORT" --user=mysqlrouter --directory /tmp/mysqlrouter --force < "$PASSFILE"
