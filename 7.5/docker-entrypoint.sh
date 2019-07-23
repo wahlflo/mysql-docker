@@ -16,7 +16,7 @@
 
 set -e
 
-echo "[Entrypoint] MySQL Docker Image 7.5.13-1.1.9-cluster"
+echo "[Entrypoint] MySQL Docker Image 7.5.15-1.1.12-cluster"
 # Fetch value from server config
 # We use mysqld --verbose --help instead of my_print_defaults because the
 # latter only show values present in config files, and not server defaults
@@ -135,7 +135,6 @@ EOF
 				echo "GRANT ALL ON \`"$MYSQL_DATABASE"\`.* TO '"$MYSQL_USER"'@'%' ;" | "${mysql[@]}"
 			fi
 
-			echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
 		elif [ "$MYSQL_USER" -a ! "$MYSQL_PASSWORD" -o ! "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
 			echo '[Entrypoint] Not creating mysql user. MYSQL_USER and MYSQL_PASSWORD must be specified to create a mysql user.'
 		fi
@@ -191,7 +190,7 @@ password=healthcheckpass
 EOF
 	touch /mysql-init-complete
 	chown -R mysql:mysql "$DATADIR"
-	echo "[Entrypoint] Starting MySQL 7.5.13-1.1.9-cluster"
+	echo "[Entrypoint] Starting MySQL 7.5.15-1.1.12-cluster"
 
 elif [ "$1" == "ndb_mgmd" ]; then
 	echo "[Entrypoint] Starting ndb_mgmd"
