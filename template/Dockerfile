@@ -12,20 +12,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-FROM oraclelinux:7-slim
+FROM oraclelinux:8-slim
 
 ARG MYSQL_SERVER_PACKAGE=%%MYSQL_SERVER_PACKAGE%%
 ARG MYSQL_ROUTER_PACKAGE=%%MYSQL_ROUTER_PACKAGE%%
 
-RUN yum install -y %%REPO%%/mysql-community-minimal-release-el7.rpm \
+RUN microdnf update && echo "[main]" > /etc/dnf/dnf.conf \
+  && dnf module disable -y mysql \
+  && dnf install -y \
+      yum-utils \
+      %%REPO%%/mysql-community-minimal-release-el7.rpm \
       %%REPO%%/mysql-community-release-el7.rpm \
-  && yum-config-manager --enable mysql%%REPO_VERSION%%-server-minimal \
-  && yum-config-manager --enable mysql-tools-community \
-  && yum install -y \
+  && dnf config-manager --enable mysql%%REPO_VERSION%%-server-minimal \
+  && dnf config-manager --enable mysql-tools-community \
+  && dnf install -y \
       $MYSQL_SERVER_PACKAGE \
       $MYSQL_ROUTER_PACKAGE \
       libpwquality \
-  && yum clean all
+      # password generation
+      cracklib-dicts \
+  && dnf clean all
 
 COPY run.sh /run.sh
 HEALTHCHECK \
