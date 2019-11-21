@@ -13,21 +13,26 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-FROM oraclelinux:7-slim
+FROM oraclelinux:8-slim
 
 ARG MYSQL_CLUSTER_PACKAGE=%%MYSQL_CLUSTER_PACKAGE%%
 ARG MYSQL_SHELL_PACKAGE=%%MYSQL_SHELL_PACKAGE%%
 
 # Install server
-RUN yum install -y \
+RUN microdnf update && echo "[main]" > /etc/dnf/dnf.conf \
+  && dnf module disable -y mysql \
+  && dnf install -y \
+    yum-utils \
     %%REPO%%/mysql-cluster-community-minimal-release-el7.rpm \
     %%REPO%%/mysql-community-release-el7.rpm \
-  && yum-config-manager --enable mysql-cluster%%REPO_VERSION%%-minimal \
-  && yum install -y \
+  && dnf config-manager --enable mysql-cluster%%REPO_VERSION%%-minimal \
+  && dnf install -y \
     $MYSQL_CLUSTER_PACKAGE \
     $MYSQL_SHELL_PACKAGE \
     libpwquality \
-  && yum clean all \
+    # password generation
+    cracklib-dicts \
+  && dnf clean all \
   && mkdir /docker-entrypoint-initdb.d
 
 VOLUME /var/lib/mysql
