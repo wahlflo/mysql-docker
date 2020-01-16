@@ -12,10 +12,10 @@ control 'packages' do
   impact 0.5
   describe package('mysql-cluster-community-server-minimal') do
     it { should be_installed }
-    its ('version') { should match '7.6.12.*' }
+    its ('version') { should match '7.6.13.*' }
   end
   describe package('mysql-shell') do
     it { should be_installed }
-    its ('version') { should match '8.0.18.*' }
+    its ('version') { should match '8.0.19.*' }
   end
 end
