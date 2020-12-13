@@ -131,7 +131,7 @@ EOF
 		fi
 
 		if [ "$MYSQL_DATABASE" ]; then
-			echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;" | "${mysql[@]}"
+			echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` CHARACTER SET utf8mb4;" | "${mysql[@]}"
 			mysql+=( "$MYSQL_DATABASE" )
 		fi
 
